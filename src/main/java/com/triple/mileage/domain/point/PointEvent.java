@@ -2,7 +2,9 @@ package com.triple.mileage.domain.point;
 
 import com.triple.mileage.domain.BasicEntity;
 import com.triple.mileage.domain.point.Point;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
@@ -14,6 +16,8 @@ import javax.persistence.*;
             @Index(name="idx_point_event_review_id", columnList = "reviewId"),
             @Index(name="idx_point_event_user_id", columnList = "userId"),
 })
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PointEvent extends BasicEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,5 +56,20 @@ public class PointEvent extends BasicEntity {
         ;
 
         private final String description;
+    }
+
+    public PointEvent(
+            String reviewId,
+            String userId,
+            Reason reason,
+            int amount,
+            long version,
+            Point point) {
+        this.reviewId = reviewId;
+        this.userId = userId;
+        this.reason = reason;
+        this.amount = amount;
+        this.version = version;
+        this.point = point;
     }
 }
