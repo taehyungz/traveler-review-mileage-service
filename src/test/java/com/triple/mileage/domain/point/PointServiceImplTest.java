@@ -45,7 +45,6 @@ class PointServiceImplTest {
     private final String CONTENT = "Good";
     private final String EMPTY_CONTENT = "";
     private final List<String> EMPTY_ATTACHED_PHOTO_LIST = Collections.emptyList();
-    private final Review ANOTHER_REVIEW = new Review("anotherReview", "anotherUser", "anotherPlace");
     private Point point;
 
     @BeforeEach
@@ -56,93 +55,93 @@ class PointServiceImplTest {
 
     @Test
     void Plain_text_review_earns_one_point() {
-        ReviewPointCommand reviewPointCommand = new ReviewPointCommand(
+        ReviewPointCommand plainTextReviewCommand = new ReviewPointCommand(
                 REVIEW_ID, USER_ID, PLACE_ID, EMPTY_ATTACHED_PHOTO_LIST, CONTENT);
         Mockito.when(reviewReader.existsAnotherReviewInPlace(PLACE_ID)).thenReturn(true);
 
-        sut.earnsPointFromReviewAdded(reviewPointCommand);
+        sut.earnsPointFromReviewAdded(plainTextReviewCommand);
 
-        verify(pointEventStore, times(1)).saveReviewWrittenEvent(point, reviewPointCommand);
-        verify(pointEventStore, never()).savePhotoAttachedEvent(point, reviewPointCommand);
-        verify(pointEventStore, never()).saveFirstReviewEvent(point, reviewPointCommand);
+        verify(pointEventStore, times(1)).saveReviewWrittenEvent(point, plainTextReviewCommand);
+        verify(pointEventStore, never()).savePhotoAttachedEvent(point, plainTextReviewCommand);
+        verify(pointEventStore, never()).saveFirstReviewEvent(point, plainTextReviewCommand);
     }
 
     @Test
     void Empty_text_review_earns_zero_point() {
-        ReviewPointCommand reviewPointCommand = new ReviewPointCommand(
+        ReviewPointCommand emptyTextReviewCommand = new ReviewPointCommand(
                 REVIEW_ID, USER_ID, PLACE_ID, EMPTY_ATTACHED_PHOTO_LIST, EMPTY_CONTENT);
         Mockito.when(reviewReader.existsAnotherReviewInPlace(PLACE_ID)).thenReturn(true);
 
-        sut.earnsPointFromReviewAdded(reviewPointCommand);
+        sut.earnsPointFromReviewAdded(emptyTextReviewCommand);
 
-        verify(pointEventStore, never()).saveReviewWrittenEvent(point, reviewPointCommand);
-        verify(pointEventStore, never()).savePhotoAttachedEvent(point, reviewPointCommand);
-        verify(pointEventStore, never()).saveFirstReviewEvent(point, reviewPointCommand);
+        verify(pointEventStore, never()).saveReviewWrittenEvent(point, emptyTextReviewCommand);
+        verify(pointEventStore, never()).savePhotoAttachedEvent(point, emptyTextReviewCommand);
+        verify(pointEventStore, never()).saveFirstReviewEvent(point, emptyTextReviewCommand);
     }
 
     @Test
     void Photo_added_review_earns_one_point() {
-        ReviewPointCommand reviewPointCommand = new ReviewPointCommand(
+        ReviewPointCommand photoAddedReviewCommand = new ReviewPointCommand(
                 REVIEW_ID, USER_ID, PLACE_ID, List.of(PHOTO_ID), EMPTY_CONTENT);
         Mockito.when(reviewReader.existsAnotherReviewInPlace(PLACE_ID)).thenReturn(true);
 
-        sut.earnsPointFromReviewAdded(reviewPointCommand);
+        sut.earnsPointFromReviewAdded(photoAddedReviewCommand);
 
-        verify(pointEventStore, never()).saveReviewWrittenEvent(point, reviewPointCommand);
-        verify(pointEventStore, times(1)).savePhotoAttachedEvent(point, reviewPointCommand);
-        verify(pointEventStore, never()).saveFirstReviewEvent(point, reviewPointCommand);
+        verify(pointEventStore, never()).saveReviewWrittenEvent(point, photoAddedReviewCommand);
+        verify(pointEventStore, times(1)).savePhotoAttachedEvent(point, photoAddedReviewCommand);
+        verify(pointEventStore, never()).saveFirstReviewEvent(point, photoAddedReviewCommand);
     }
 
     @Test
     void Photo_not_added_review_earns_zero_point() {
-        ReviewPointCommand reviewPointCommand = new ReviewPointCommand(
+        ReviewPointCommand photoNotAddedReviewCommand = new ReviewPointCommand(
                 REVIEW_ID, USER_ID, PLACE_ID, EMPTY_ATTACHED_PHOTO_LIST, EMPTY_CONTENT);
         Mockito.when(reviewReader.existsAnotherReviewInPlace(PLACE_ID)).thenReturn(true);
 
-        sut.earnsPointFromReviewAdded(reviewPointCommand);
+        sut.earnsPointFromReviewAdded(photoNotAddedReviewCommand);
 
-        verify(pointEventStore, never()).saveReviewWrittenEvent(point, reviewPointCommand);
-        verify(pointEventStore, never()).savePhotoAttachedEvent(point, reviewPointCommand);
-        verify(pointEventStore, never()).saveFirstReviewEvent(point, reviewPointCommand);
+        verify(pointEventStore, never()).saveReviewWrittenEvent(point, photoNotAddedReviewCommand);
+        verify(pointEventStore, never()).savePhotoAttachedEvent(point, photoNotAddedReviewCommand);
+        verify(pointEventStore, never()).saveFirstReviewEvent(point, photoNotAddedReviewCommand);
     }
 
     @Test
     void First_place_review_earns_one_point() {
-        ReviewPointCommand reviewPointCommand = new ReviewPointCommand(
+        ReviewPointCommand firstPlaceReviewCommand = new ReviewPointCommand(
                 REVIEW_ID, USER_ID, PLACE_ID, EMPTY_ATTACHED_PHOTO_LIST, EMPTY_CONTENT);
         Mockito.when(reviewReader.existsAnotherReviewInPlace(PLACE_ID)).thenReturn(false);
 
-        sut.earnsPointFromReviewAdded(reviewPointCommand);
+        sut.earnsPointFromReviewAdded(firstPlaceReviewCommand);
 
-        verify(pointEventStore, never()).saveReviewWrittenEvent(point, reviewPointCommand);
-        verify(pointEventStore, never()).savePhotoAttachedEvent(point, reviewPointCommand);
-        verify(pointEventStore, times(1)).saveFirstReviewEvent(point, reviewPointCommand);
+        verify(pointEventStore, never()).saveReviewWrittenEvent(point, firstPlaceReviewCommand);
+        verify(pointEventStore, never()).savePhotoAttachedEvent(point, firstPlaceReviewCommand);
+        verify(pointEventStore, times(1)).saveFirstReviewEvent(point, firstPlaceReviewCommand);
     }
 
     @Test
     void Non_first_place_review_earns_zero_point() {
-        ReviewPointCommand reviewPointCommand = new ReviewPointCommand(
+        ReviewPointCommand nonFirstReviewCommand = new ReviewPointCommand(
                 REVIEW_ID, USER_ID, PLACE_ID, EMPTY_ATTACHED_PHOTO_LIST, EMPTY_CONTENT);
         Mockito.when(reviewReader.existsAnotherReviewInPlace(PLACE_ID)).thenReturn(true);
 
-        sut.earnsPointFromReviewAdded(reviewPointCommand);
+        sut.earnsPointFromReviewAdded(nonFirstReviewCommand);
 
-        verify(pointEventStore, never()).saveReviewWrittenEvent(point, reviewPointCommand);
-        verify(pointEventStore, never()).savePhotoAttachedEvent(point, reviewPointCommand);
-        verify(pointEventStore, never()).saveFirstReviewEvent(point, reviewPointCommand);
+        verify(pointEventStore, never()).saveReviewWrittenEvent(point, nonFirstReviewCommand);
+        verify(pointEventStore, never()).savePhotoAttachedEvent(point, nonFirstReviewCommand);
+        verify(pointEventStore, never()).saveFirstReviewEvent(point, nonFirstReviewCommand);
     }
 
     @Test
     void Photo_added_plain_text_review_of_first_place_earns_three_point() {
-        ReviewPointCommand reviewPointCommand = new ReviewPointCommand(
+        ReviewPointCommand threePointReviewCommand = new ReviewPointCommand(
                 REVIEW_ID, USER_ID, PLACE_ID, List.of(PHOTO_ID), CONTENT);
         Mockito.when(reviewReader.existsAnotherReviewInPlace(PLACE_ID)).thenReturn(false);
 
-        sut.earnsPointFromReviewAdded(reviewPointCommand);
+        sut.earnsPointFromReviewAdded(threePointReviewCommand);
 
-        verify(pointEventStore, times(1)).saveReviewWrittenEvent(point, reviewPointCommand);
-        verify(pointEventStore, times(1)).savePhotoAttachedEvent(point, reviewPointCommand);
-        verify(pointEventStore, times(1)).saveFirstReviewEvent(point, reviewPointCommand);
+        verify(pointEventStore, times(1)).saveReviewWrittenEvent(point, threePointReviewCommand);
+        verify(pointEventStore, times(1)).savePhotoAttachedEvent(point, threePointReviewCommand);
+        verify(pointEventStore, times(1)).saveFirstReviewEvent(point, threePointReviewCommand);
     }
 
     @Test
