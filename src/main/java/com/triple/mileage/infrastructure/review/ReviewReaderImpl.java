@@ -1,5 +1,6 @@
 package com.triple.mileage.infrastructure.review;
 
+import com.triple.mileage.domain.review.Review;
 import com.triple.mileage.domain.review.ReviewReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,5 +14,11 @@ public class ReviewReaderImpl implements ReviewReader {
     @Override
     public boolean existsAnotherReviewInPlace(String placeId) {
         return reviewRepository.existsByPlaceId(placeId);
+    }
+
+    @Override
+    public Review findReview(String reviewId) {
+        return reviewRepository.findById(reviewId)
+                .orElseThrow();
     }
 }

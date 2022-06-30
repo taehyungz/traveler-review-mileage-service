@@ -2,10 +2,12 @@ package com.triple.mileage.domain.point;
 
 import com.triple.mileage.domain.point.dto.ReviewPointCommand;
 
+import java.util.List;
+
+import static com.triple.mileage.domain.point.PointEvent.*;
+
 public interface PointEventStore {
-    void saveReviewWrittenEvent(Point point, ReviewPointCommand command);
+    void saveReviewAddedEvent(Point point, ReviewPointCommand command, Reason reason);
 
-    void savePhotoAttachedEvent(Point point, ReviewPointCommand command);
-
-    void saveFirstReviewEvent(Point point, ReviewPointCommand command);
+    void saveReviewDeletedEvent(List<PointEvent> pointEventList);
 }

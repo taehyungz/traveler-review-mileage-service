@@ -22,4 +22,9 @@ public class PhotoStoreImpl implements PhotoStore {
             photoRepository.save(photo);
         }
     }
+
+    @Override
+    public void deleteAllByReview(Review review) {
+        photoRepository.deleteAllByReview(review);
+    }
 }

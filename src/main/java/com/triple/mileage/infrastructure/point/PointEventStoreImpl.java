@@ -7,49 +7,33 @@ import com.triple.mileage.domain.point.dto.ReviewPointCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
+import static com.triple.mileage.domain.point.PointEvent.*;
+
 @Component
 @RequiredArgsConstructor
 public class PointEventStoreImpl implements PointEventStore {
 
     private final PointEventRepository pointEventRepository;
+
     private static final int ONE_POINT = 1;
 
     @Override
-    public void saveReviewWrittenEvent(Point point, ReviewPointCommand command) {
-        PointEvent pointEvent = new PointEvent(
+    public void saveReviewAddedEvent(Point point, ReviewPointCommand command, Reason reason) {
+        PointEvent initPointEvent = new PointEvent(
                 command.getReviewId(),
                 command.getUserId(),
-                PointEvent.Reason.WRITE_REVIEW,
+                reason,
                 ONE_POINT,
-                point.getVersion(),
                 point);
-        point.pointUp();
-        pointEventRepository.save(pointEvent);
+        PointEvent pointEvent = pointEventRepository.save(initPointEvent);
+        pointEvent.getPoint().pointUp();
     }
 
     @Override
-    public void savePhotoAttachedEvent(Point point, ReviewPointCommand command) {
-        PointEvent pointEvent = new PointEvent(
-                command.getReviewId(),
-                command.getUserId(),
-                PointEvent.Reason.ATTACH_PHOTO,
-                ONE_POINT,
-                point.getVersion(),
-                point);
-        point.pointUp();
-        pointEventRepository.save(pointEvent);
-    }
-
-    @Override
-    public void saveFirstReviewEvent(Point point, ReviewPointCommand command) {
-        PointEvent pointEvent = new PointEvent(
-                command.getReviewId(),
-                command.getUserId(),
-                PointEvent.Reason.FIRST_REVIEW,
-                ONE_POINT,
-                point.getVersion(),
-                point);
-        point.pointUp();
-        pointEventRepository.save(pointEvent);
+    public void saveReviewDeletedEvent(List<PointEvent> reviewDeletedPointEvent) {
+        List<PointEvent> pointEvents = pointEventRepository.saveAll(reviewDeletedPointEvent);
+        pointEvents.get(0).getPoint().pointDownAmountOf(reviewDeletedPointEvent.size());
     }
 }

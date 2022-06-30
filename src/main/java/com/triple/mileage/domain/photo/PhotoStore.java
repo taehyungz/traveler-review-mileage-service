@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface PhotoStore {
     void save(List<String> attachedPhotoIds, Review savedReview);
+
+    void deleteAllByReview(Review review);
 }

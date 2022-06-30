@@ -1,7 +1,6 @@
 package com.triple.mileage.domain.point;
 
 import com.triple.mileage.domain.BasicEntity;
-import com.triple.mileage.domain.point.Point;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,32 +43,53 @@ public class PointEvent extends BasicEntity {
     @JoinColumn(name = "point_id", nullable = false)
     private Point point;
 
+    public PointEvent(
+            String reviewId,
+            String userId,
+            Reason reason,
+            int amount,
+            Point point) {
+        this.reviewId = reviewId;
+        this.userId = userId;
+        this.reason = reason;
+        this.amount = amount;
+        this.version = point.getVersion();
+        this.point = point;
+    }
+
+    public static PointEvent deductPointEventFrom(Point point, PointEvent pointEvent) {
+        return new PointEvent(
+                pointEvent.getReviewId(),
+                pointEvent.getUserId(),
+                pointEvent.getReason().getOppositeReason(),
+                pointEvent.getAmount() * -1,
+                point
+        );
+    }
+
     @Getter
     @RequiredArgsConstructor
     public enum Reason {
         WRITE_REVIEW("리뷰 작성"),
         ATTACH_PHOTO("사진 첨부"),
         FIRST_REVIEW("첫 리뷰"),
-        REMOVE_REVIEW("리뷰 삭제"),
+        DELETE_REVIEW("리뷰 삭제"),
         DELETE_PHOTO("사진 삭제"),
-        DELETE_FIRST_REVIEW("첫 리뷰 삭제"),
-        ;
+        DELETE_FIRST_REVIEW("첫 리뷰 삭제");
 
         private final String description;
-    }
 
-    public PointEvent(
-            String reviewId,
-            String userId,
-            Reason reason,
-            int amount,
-            long version,
-            Point point) {
-        this.reviewId = reviewId;
-        this.userId = userId;
-        this.reason = reason;
-        this.amount = amount;
-        this.version = version;
-        this.point = point;
+        public Reason getOppositeReason() {
+            switch (this) {
+                case WRITE_REVIEW:
+                    return DELETE_REVIEW;
+                case ATTACH_PHOTO:
+                    return DELETE_PHOTO;
+                case FIRST_REVIEW:
+                    return DELETE_FIRST_REVIEW;
+                default:
+                    throw new IllegalStateException("비정상적인 상황입니다.");
+            }
+        }
     }
 }

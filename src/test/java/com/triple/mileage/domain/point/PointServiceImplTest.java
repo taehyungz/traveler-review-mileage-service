@@ -16,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Collections;
 import java.util.List;
 
+import static com.triple.mileage.domain.point.PointEvent.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -31,6 +32,9 @@ class PointServiceImplTest {
 
     @Mock
     private PointEventStore pointEventStore;
+
+    @Mock
+    private PointEventReader pointEventReader;
 
     @Mock
     private PhotoStore photoStore;
@@ -61,9 +65,12 @@ class PointServiceImplTest {
 
         sut.earnsPointFromReviewAdded(plainTextReviewCommand);
 
-        verify(pointEventStore, times(1)).saveReviewWrittenEvent(point, plainTextReviewCommand);
-        verify(pointEventStore, never()).savePhotoAttachedEvent(point, plainTextReviewCommand);
-        verify(pointEventStore, never()).saveFirstReviewEvent(point, plainTextReviewCommand);
+        verify(pointEventStore, times(1))
+                .saveReviewAddedEvent(point, plainTextReviewCommand, Reason.WRITE_REVIEW);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, plainTextReviewCommand, Reason.ATTACH_PHOTO);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, plainTextReviewCommand, Reason.FIRST_REVIEW);
     }
 
     @Test
@@ -74,9 +81,12 @@ class PointServiceImplTest {
 
         sut.earnsPointFromReviewAdded(emptyTextReviewCommand);
 
-        verify(pointEventStore, never()).saveReviewWrittenEvent(point, emptyTextReviewCommand);
-        verify(pointEventStore, never()).savePhotoAttachedEvent(point, emptyTextReviewCommand);
-        verify(pointEventStore, never()).saveFirstReviewEvent(point, emptyTextReviewCommand);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, emptyTextReviewCommand, Reason.WRITE_REVIEW);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, emptyTextReviewCommand, Reason.ATTACH_PHOTO);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, emptyTextReviewCommand, Reason.FIRST_REVIEW);
     }
 
     @Test
@@ -87,9 +97,12 @@ class PointServiceImplTest {
 
         sut.earnsPointFromReviewAdded(photoAddedReviewCommand);
 
-        verify(pointEventStore, never()).saveReviewWrittenEvent(point, photoAddedReviewCommand);
-        verify(pointEventStore, times(1)).savePhotoAttachedEvent(point, photoAddedReviewCommand);
-        verify(pointEventStore, never()).saveFirstReviewEvent(point, photoAddedReviewCommand);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, photoAddedReviewCommand, Reason.WRITE_REVIEW);
+        verify(pointEventStore, times(1))
+                .saveReviewAddedEvent(point, photoAddedReviewCommand, Reason.ATTACH_PHOTO);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, photoAddedReviewCommand, Reason.FIRST_REVIEW);
     }
 
     @Test
@@ -100,9 +113,12 @@ class PointServiceImplTest {
 
         sut.earnsPointFromReviewAdded(photoNotAddedReviewCommand);
 
-        verify(pointEventStore, never()).saveReviewWrittenEvent(point, photoNotAddedReviewCommand);
-        verify(pointEventStore, never()).savePhotoAttachedEvent(point, photoNotAddedReviewCommand);
-        verify(pointEventStore, never()).saveFirstReviewEvent(point, photoNotAddedReviewCommand);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, photoNotAddedReviewCommand, Reason.WRITE_REVIEW);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, photoNotAddedReviewCommand, Reason.ATTACH_PHOTO);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, photoNotAddedReviewCommand, Reason.FIRST_REVIEW);
     }
 
     @Test
@@ -113,9 +129,12 @@ class PointServiceImplTest {
 
         sut.earnsPointFromReviewAdded(firstPlaceReviewCommand);
 
-        verify(pointEventStore, never()).saveReviewWrittenEvent(point, firstPlaceReviewCommand);
-        verify(pointEventStore, never()).savePhotoAttachedEvent(point, firstPlaceReviewCommand);
-        verify(pointEventStore, times(1)).saveFirstReviewEvent(point, firstPlaceReviewCommand);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, firstPlaceReviewCommand, Reason.WRITE_REVIEW);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, firstPlaceReviewCommand, Reason.ATTACH_PHOTO);
+        verify(pointEventStore, times(1))
+                .saveReviewAddedEvent(point, firstPlaceReviewCommand, Reason.FIRST_REVIEW);
     }
 
     @Test
@@ -126,9 +145,12 @@ class PointServiceImplTest {
 
         sut.earnsPointFromReviewAdded(nonFirstReviewCommand);
 
-        verify(pointEventStore, never()).saveReviewWrittenEvent(point, nonFirstReviewCommand);
-        verify(pointEventStore, never()).savePhotoAttachedEvent(point, nonFirstReviewCommand);
-        verify(pointEventStore, never()).saveFirstReviewEvent(point, nonFirstReviewCommand);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, nonFirstReviewCommand, Reason.WRITE_REVIEW);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, nonFirstReviewCommand, Reason.ATTACH_PHOTO);
+        verify(pointEventStore, never())
+                .saveReviewAddedEvent(point, nonFirstReviewCommand, Reason.FIRST_REVIEW);
     }
 
     @Test
@@ -139,9 +161,12 @@ class PointServiceImplTest {
 
         sut.earnsPointFromReviewAdded(threePointReviewCommand);
 
-        verify(pointEventStore, times(1)).saveReviewWrittenEvent(point, threePointReviewCommand);
-        verify(pointEventStore, times(1)).savePhotoAttachedEvent(point, threePointReviewCommand);
-        verify(pointEventStore, times(1)).saveFirstReviewEvent(point, threePointReviewCommand);
+        verify(pointEventStore, times(1))
+                .saveReviewAddedEvent(point, threePointReviewCommand, Reason.WRITE_REVIEW);
+        verify(pointEventStore, times(1))
+                .saveReviewAddedEvent(point, threePointReviewCommand, Reason.ATTACH_PHOTO);
+        verify(pointEventStore, times(1))
+                .saveReviewAddedEvent(point, threePointReviewCommand, Reason.FIRST_REVIEW);
     }
 
     @Test
@@ -150,11 +175,12 @@ class PointServiceImplTest {
                 REVIEW_ID, USER_ID, PLACE_ID, List.of(PHOTO_ID), CONTENT);
         Review myReview = new Review(REVIEW_ID, USER_ID, PLACE_ID);
         Mockito.when(reviewReader.existsAnotherReviewInPlace(PLACE_ID)).thenReturn(false);
-        Mockito.when(reviewStore.save(reviewPointCommand)).thenReturn(myReview);
+        Mockito.when(reviewStore.save(any(Review.class))).thenReturn(myReview);
 
         sut.earnsPointFromReviewAdded(reviewPointCommand);
 
-        verify(reviewStore, times(1)).save(reviewPointCommand);
-        verify(photoStore, times(1)).save(reviewPointCommand.getAttachedPhotoIds(), myReview);
+        verify(reviewStore, times(1)).save(any(Review.class));
+        verify(photoStore, times(1))
+                .save(reviewPointCommand.getAttachedPhotoIds(), myReview);
     }
 }
