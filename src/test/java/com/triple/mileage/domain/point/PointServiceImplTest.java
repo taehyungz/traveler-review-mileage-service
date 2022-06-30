@@ -1,5 +1,6 @@
 package com.triple.mileage.domain.point;
 
+import com.triple.mileage.domain.photo.Photo;
 import com.triple.mileage.domain.photo.PhotoStore;
 import com.triple.mileage.domain.point.dto.ReviewPointCommand;
 import com.triple.mileage.domain.review.Review;
@@ -72,7 +73,7 @@ class PointServiceImplTest {
             sut.earnsPointFromReviewAdded(plainTextReviewCommand);
 
             verify(pointEventStore, times(1))
-                    .saveReviewAddedEvent(point, plainTextReviewCommand, Reason.WRITE_REVIEW);
+                    .saveReviewAddedEvent(point, plainTextReviewCommand, Reason.WRITE_TEXT);
             verify(pointEventStore, never())
                     .saveReviewAddedEvent(point, plainTextReviewCommand, Reason.ATTACH_PHOTO);
             verify(pointEventStore, never())
@@ -88,7 +89,7 @@ class PointServiceImplTest {
             sut.earnsPointFromReviewAdded(emptyTextReviewCommand);
 
             verify(pointEventStore, never())
-                    .saveReviewAddedEvent(point, emptyTextReviewCommand, Reason.WRITE_REVIEW);
+                    .saveReviewAddedEvent(point, emptyTextReviewCommand, Reason.WRITE_TEXT);
             verify(pointEventStore, never())
                     .saveReviewAddedEvent(point, emptyTextReviewCommand, Reason.ATTACH_PHOTO);
             verify(pointEventStore, never())
@@ -104,7 +105,7 @@ class PointServiceImplTest {
             sut.earnsPointFromReviewAdded(photoAddedReviewCommand);
 
             verify(pointEventStore, never())
-                    .saveReviewAddedEvent(point, photoAddedReviewCommand, Reason.WRITE_REVIEW);
+                    .saveReviewAddedEvent(point, photoAddedReviewCommand, Reason.WRITE_TEXT);
             verify(pointEventStore, times(1))
                     .saveReviewAddedEvent(point, photoAddedReviewCommand, Reason.ATTACH_PHOTO);
             verify(pointEventStore, never())
@@ -120,7 +121,7 @@ class PointServiceImplTest {
             sut.earnsPointFromReviewAdded(photoNotAddedReviewCommand);
 
             verify(pointEventStore, never())
-                    .saveReviewAddedEvent(point, photoNotAddedReviewCommand, Reason.WRITE_REVIEW);
+                    .saveReviewAddedEvent(point, photoNotAddedReviewCommand, Reason.WRITE_TEXT);
             verify(pointEventStore, never())
                     .saveReviewAddedEvent(point, photoNotAddedReviewCommand, Reason.ATTACH_PHOTO);
             verify(pointEventStore, never())
@@ -136,7 +137,7 @@ class PointServiceImplTest {
             sut.earnsPointFromReviewAdded(firstPlaceReviewCommand);
 
             verify(pointEventStore, never())
-                    .saveReviewAddedEvent(point, firstPlaceReviewCommand, Reason.WRITE_REVIEW);
+                    .saveReviewAddedEvent(point, firstPlaceReviewCommand, Reason.WRITE_TEXT);
             verify(pointEventStore, never())
                     .saveReviewAddedEvent(point, firstPlaceReviewCommand, Reason.ATTACH_PHOTO);
             verify(pointEventStore, times(1))
@@ -152,7 +153,7 @@ class PointServiceImplTest {
             sut.earnsPointFromReviewAdded(nonFirstReviewCommand);
 
             verify(pointEventStore, never())
-                    .saveReviewAddedEvent(point, nonFirstReviewCommand, Reason.WRITE_REVIEW);
+                    .saveReviewAddedEvent(point, nonFirstReviewCommand, Reason.WRITE_TEXT);
             verify(pointEventStore, never())
                     .saveReviewAddedEvent(point, nonFirstReviewCommand, Reason.ATTACH_PHOTO);
             verify(pointEventStore, never())
@@ -168,7 +169,7 @@ class PointServiceImplTest {
             sut.earnsPointFromReviewAdded(threePointReviewCommand);
 
             verify(pointEventStore, times(1))
-                    .saveReviewAddedEvent(point, threePointReviewCommand, Reason.WRITE_REVIEW);
+                    .saveReviewAddedEvent(point, threePointReviewCommand, Reason.WRITE_TEXT);
             verify(pointEventStore, times(1))
                     .saveReviewAddedEvent(point, threePointReviewCommand, Reason.ATTACH_PHOTO);
             verify(pointEventStore, times(1))
@@ -202,7 +203,7 @@ class PointServiceImplTest {
             sut.deductPointFromReviewDeleted(reviewDeletedCommand);
 
             verify(pointEventStore, times(1))
-                    .saveReviewDeletedEvent(ArgumentMatchers.<PointEvent>anyList());
+                    .saveReviewDeletedEvent(ArgumentMatchers.anyList());
         }
 
         @Test
@@ -216,6 +217,47 @@ class PointServiceImplTest {
 
             verify(photoStore, times(1)).deleteAllByReview(review);
             verify(reviewStore, times(1)).delete(review);
+        }
+    }
+
+    @Nested
+    @DisplayName("ReviewModifiedTests")
+    class ReviewModifiedTests {
+        @Test
+        void If_photo_is_deleted_from_review_point_is_deducted() {
+            ReviewPointCommand nonPhotoReviewCommand = new ReviewPointCommand(
+                    REVIEW_ID,
+                    USER_ID,
+                    PLACE_ID,
+                    EMPTY_ATTACHED_PHOTO_LIST,
+                    CONTENT);
+            Review reviewToModify = new Review(REVIEW_ID, USER_ID, PLACE_ID);
+            reviewToModify.addPhoto(new Photo("originPhoto", reviewToModify));
+            Mockito.when(reviewReader.findReview(nonPhotoReviewCommand.getReviewId()))
+                    .thenReturn(reviewToModify);
+
+            sut.modifyPointFromReviewModified(nonPhotoReviewCommand);
+
+            Mockito.verify(pointEventStore, times(1))
+                    .saveReviewDeletedEvent(ArgumentMatchers.<PointEvent>anyList());
+        }
+
+        @Test
+        void If_photo_is_added_from_review_point_is_added() {
+            ReviewPointCommand photoAddedCommand = new ReviewPointCommand(
+                    REVIEW_ID,
+                    USER_ID,
+                    PLACE_ID,
+                    List.of(PHOTO_ID),
+                    CONTENT);
+            Review reviewToModify = new Review(REVIEW_ID, USER_ID, PLACE_ID);
+            Mockito.when(reviewReader.findReview(photoAddedCommand.getReviewId()))
+                            .thenReturn(reviewToModify);
+
+            sut.modifyPointFromReviewModified(photoAddedCommand);
+
+            Mockito.verify(pointEventStore, times(1))
+                    .saveReviewAddedEvent(point, photoAddedCommand, Reason.ATTACH_PHOTO);
         }
     }
 }

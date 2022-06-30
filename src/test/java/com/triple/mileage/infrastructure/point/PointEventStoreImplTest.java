@@ -54,12 +54,12 @@ class PointEventStoreImplTest {
             PointEvent pointEvent = new PointEvent(
                     plainTextReviewCommand.getReviewId(),
                     plainTextReviewCommand.getUserId(),
-                    Reason.WRITE_REVIEW,
+                    Reason.WRITE_TEXT,
                     ONE_POINT,
                     point);
             Mockito.when(pointEventRepository.save(any(PointEvent.class))).thenReturn(pointEvent);
 
-            sut.saveReviewAddedEvent(point, plainTextReviewCommand, Reason.WRITE_REVIEW);
+            sut.saveReviewAddedEvent(point, plainTextReviewCommand, Reason.WRITE_TEXT);
 
             Assertions.assertThat(point.getAmount()).isEqualTo(ONE_POINT);
         }
@@ -105,7 +105,7 @@ class PointEventStoreImplTest {
         @Test
         void Deleting_the_plain_text_review_deducts_one_point() {
             point.pointUp();
-            PointEvent reviewDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, Reason.DELETE_REVIEW, ONE_POINT, point);
+            PointEvent reviewDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, Reason.DELETE_TEXT, ONE_POINT, point);
             List<PointEvent> eventList = List.of(reviewDeletedEvent);
             final int pointAmount = point.getAmount();
             Mockito.when(pointEventRepository.saveAll(eventList)).thenReturn(eventList);
@@ -119,7 +119,7 @@ class PointEventStoreImplTest {
         void Deleting_the_attached_text_review_deducts_two_point() {
             point.pointUp();
             point.pointUp();
-            PointEvent reviewDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, Reason.DELETE_REVIEW, ONE_POINT, point);
+            PointEvent reviewDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, Reason.DELETE_TEXT, ONE_POINT, point);
             PointEvent photoDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, Reason.DELETE_PHOTO, ONE_POINT, point);
             List<PointEvent> eventList = List.of(reviewDeletedEvent, photoDeletedEvent);
             final int pointAmount = point.getAmount();

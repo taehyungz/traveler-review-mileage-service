@@ -6,4 +6,6 @@ public interface PointService {
     void earnsPointFromReviewAdded(ReviewPointCommand command);
 
     void deductPointFromReviewDeleted(ReviewPointCommand command);
+
+    void modifyPointFromReviewModified(ReviewPointCommand command);
 }

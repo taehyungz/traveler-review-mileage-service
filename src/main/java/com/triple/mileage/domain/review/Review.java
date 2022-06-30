@@ -3,6 +3,7 @@ package com.triple.mileage.domain.review;
 import com.triple.mileage.domain.BasicEntity;
 import com.triple.mileage.domain.photo.Photo;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -17,6 +18,7 @@ import java.util.List;
                 @Index(name="idx_review_place_id", columnList = "placeId"),
         })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Review extends BasicEntity {
     @Id
     @Column(length = 36)

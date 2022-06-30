@@ -31,8 +31,8 @@ public class PointServiceImpl implements PointService {
         Point point = pointReader.findByUser(command.getUserId());
         point.versionUp();
 
-        if (isContentHasText(command)) {
-            pointEventStore.saveReviewAddedEvent(point, command, Reason.WRITE_REVIEW);
+        if (hasText(command)) {
+            pointEventStore.saveReviewAddedEvent(point, command, Reason.WRITE_TEXT);
         }
         if (isPhotoAttachedToReview(command)) {
             pointEventStore.saveReviewAddedEvent(point, command, Reason.ATTACH_PHOTO);
@@ -54,9 +54,25 @@ public class PointServiceImpl implements PointService {
         List<PointEvent> reviewDeletedPointEventList = getReviewDeletedPointEventList(command, point);
         pointEventStore.saveReviewDeletedEvent(reviewDeletedPointEventList);
 
-        Review review = reviewReader.findReview(command.getReviewId());
-        photoStore.deleteAllByReview(review);
-        reviewStore.delete(review);
+        Review reviewToDelete = reviewReader.findReview(command.getReviewId());
+        photoStore.deleteAllByReview(reviewToDelete);
+        reviewStore.delete(reviewToDelete);
+    }
+
+    @Override
+    @Transactional
+    public void modifyPointFromReviewModified(ReviewPointCommand command) {
+        Point point = pointReader.findByUser(command.getUserId());
+        point.versionUp();
+
+        Review reviewToModify = reviewReader.findReview(command.getReviewId());
+
+        if (reviewToModify.getPhotoList().isEmpty() && !command.getAttachedPhotoIds().isEmpty()) {
+            pointEventStore.saveReviewAddedEvent(point, command, Reason.ATTACH_PHOTO);
+        }
+        if (!reviewToModify.getPhotoList().isEmpty() && command.getAttachedPhotoIds().isEmpty()) {
+            pointEventStore.saveReviewDeletedEvent(List.of(PointEvent.of(point, command, Reason.DELETE_PHOTO)));
+        }
     }
 
     private List<PointEvent> getReviewDeletedPointEventList(ReviewPointCommand command, Point point) {
@@ -70,7 +86,7 @@ public class PointServiceImpl implements PointService {
         return !command.getAttachedPhotoIds().isEmpty();
     }
 
-    private boolean isContentHasText(ReviewPointCommand command) {
+    private boolean hasText(ReviewPointCommand command) {
         return StringUtils.hasText(command.getContent());
     }
 

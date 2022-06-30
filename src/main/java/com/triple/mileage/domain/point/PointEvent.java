@@ -1,6 +1,7 @@
 package com.triple.mileage.domain.point;
 
 import com.triple.mileage.domain.BasicEntity;
+import com.triple.mileage.domain.point.dto.ReviewPointCommand;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -67,13 +68,23 @@ public class PointEvent extends BasicEntity {
         );
     }
 
+    public static PointEvent of(Point point, ReviewPointCommand command, Reason reason) {
+        return new PointEvent(
+                command.getReviewId(),
+                command.getUserId(),
+                reason,
+                1,
+                point
+        );
+    }
+
     @Getter
     @RequiredArgsConstructor
     public enum Reason {
-        WRITE_REVIEW("리뷰 작성"),
+        WRITE_TEXT("텍스트 작성"),
         ATTACH_PHOTO("사진 첨부"),
-        FIRST_REVIEW("첫 리뷰"),
-        DELETE_REVIEW("리뷰 삭제"),
+        FIRST_REVIEW("첫 리뷰 작성"),
+        DELETE_TEXT("텍스트 삭제"),
         DELETE_PHOTO("사진 삭제"),
         DELETE_FIRST_REVIEW("첫 리뷰 삭제");
 
@@ -81,8 +92,8 @@ public class PointEvent extends BasicEntity {
 
         public Reason getOppositeReason() {
             switch (this) {
-                case WRITE_REVIEW:
-                    return DELETE_REVIEW;
+                case WRITE_TEXT:
+                    return DELETE_TEXT;
                 case ATTACH_PHOTO:
                     return DELETE_PHOTO;
                 case FIRST_REVIEW:
