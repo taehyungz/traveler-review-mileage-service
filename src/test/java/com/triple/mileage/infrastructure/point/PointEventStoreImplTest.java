@@ -5,6 +5,8 @@ import com.triple.mileage.domain.point.PointEvent;
 import com.triple.mileage.domain.point.dto.ReviewPointCommand;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -42,54 +44,90 @@ class PointEventStoreImplTest {
         point = new Point("userId");
     }
 
-    @Test
-    void Writing_plain_text_review_earns_one_point() {
-        ReviewPointCommand plainTextReviewCommand = new ReviewPointCommand(
-                REVIEW_ID, USER_ID, PLACE_ID, EMPTY_ATTACHED_PHOTO_LIST, CONTENT);
-        PointEvent pointEvent = new PointEvent(
-                plainTextReviewCommand.getReviewId(),
-                plainTextReviewCommand.getUserId(),
-                Reason.WRITE_REVIEW,
-                ONE_POINT,
-                point);
-        Mockito.when(pointEventRepository.save(any(PointEvent.class))).thenReturn(pointEvent);
+    @Nested
+    @DisplayName("ReviewAddedTests")
+    class ReviewAddedTests {
+        @Test
+        void Writing_plain_text_review_earns_one_point() {
+            ReviewPointCommand plainTextReviewCommand = new ReviewPointCommand(
+                    REVIEW_ID, USER_ID, PLACE_ID, EMPTY_ATTACHED_PHOTO_LIST, CONTENT);
+            PointEvent pointEvent = new PointEvent(
+                    plainTextReviewCommand.getReviewId(),
+                    plainTextReviewCommand.getUserId(),
+                    Reason.WRITE_REVIEW,
+                    ONE_POINT,
+                    point);
+            Mockito.when(pointEventRepository.save(any(PointEvent.class))).thenReturn(pointEvent);
 
-        sut.saveReviewAddedEvent(point, plainTextReviewCommand, Reason.WRITE_REVIEW);
+            sut.saveReviewAddedEvent(point, plainTextReviewCommand, Reason.WRITE_REVIEW);
 
-        Assertions.assertThat(point.getAmount()).isEqualTo(ONE_POINT);
+            Assertions.assertThat(point.getAmount()).isEqualTo(ONE_POINT);
+        }
+
+        @Test
+        void Writing_photo_attached_review_earns_one_point() {
+            ReviewPointCommand photoAddedReviewCommand = new ReviewPointCommand(
+                    REVIEW_ID, USER_ID, PLACE_ID, List.of(PHOTO_ID), EMPTY_CONTENT);
+            PointEvent pointEvent = new PointEvent(
+                    photoAddedReviewCommand.getReviewId(),
+                    photoAddedReviewCommand.getUserId(),
+                    Reason.ATTACH_PHOTO,
+                    ONE_POINT,
+                    point);
+            Mockito.when(pointEventRepository.save(any(PointEvent.class))).thenReturn(pointEvent);
+
+            sut.saveReviewAddedEvent(point, photoAddedReviewCommand, Reason.ATTACH_PHOTO);
+
+            Assertions.assertThat(point.getAmount()).isEqualTo(ONE_POINT);
+        }
+
+        @Test
+        void Writing_the_first_review_on_place_earns_one_point() {
+            ReviewPointCommand firstPlaceReviewCommand = new ReviewPointCommand(
+                    REVIEW_ID, USER_ID, PLACE_ID, EMPTY_ATTACHED_PHOTO_LIST, EMPTY_CONTENT);
+            PointEvent pointEvent = new PointEvent(
+                    firstPlaceReviewCommand.getReviewId(),
+                    firstPlaceReviewCommand.getUserId(),
+                    Reason.FIRST_REVIEW,
+                    ONE_POINT,
+                    point);
+            Mockito.when(pointEventRepository.save(any(PointEvent.class))).thenReturn(pointEvent);
+
+            sut.saveReviewAddedEvent(point, firstPlaceReviewCommand, Reason.FIRST_REVIEW);
+
+            Assertions.assertThat(point.getAmount()).isEqualTo(ONE_POINT);
+        }
     }
 
-    @Test
-    void Writing_photo_attached_review_earns_one_point() {
-        ReviewPointCommand photoAddedReviewCommand = new ReviewPointCommand(
-                REVIEW_ID, USER_ID, PLACE_ID, List.of(PHOTO_ID), EMPTY_CONTENT);
-        PointEvent pointEvent = new PointEvent(
-                photoAddedReviewCommand.getReviewId(),
-                photoAddedReviewCommand.getUserId(),
-                Reason.ATTACH_PHOTO,
-                ONE_POINT,
-                point);
-        Mockito.when(pointEventRepository.save(any(PointEvent.class))).thenReturn(pointEvent);
+    @Nested
+    @DisplayName("ReviewDeletedTests")
+    class ReviewDeletedTests {
+        @Test
+        void Deleting_the_plain_text_review_deducts_one_point() {
+            point.pointUp();
+            PointEvent reviewDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, Reason.DELETE_REVIEW, ONE_POINT, point);
+            List<PointEvent> eventList = List.of(reviewDeletedEvent);
+            final int pointAmount = point.getAmount();
+            Mockito.when(pointEventRepository.saveAll(eventList)).thenReturn(eventList);
 
-        sut.saveReviewAddedEvent(point, photoAddedReviewCommand, Reason.ATTACH_PHOTO);
+            sut.saveReviewDeletedEvent(eventList);
 
-        Assertions.assertThat(point.getAmount()).isEqualTo(ONE_POINT);
-    }
+            Assertions.assertThat(point.getAmount()).isEqualTo(pointAmount - ONE_POINT);
+        }
 
-    @Test
-    void Writing_the_first_review_on_place_earns_one_point() {
-        ReviewPointCommand firstPlaceReviewCommand = new ReviewPointCommand(
-                REVIEW_ID, USER_ID, PLACE_ID, EMPTY_ATTACHED_PHOTO_LIST, EMPTY_CONTENT);
-        PointEvent pointEvent = new PointEvent(
-                firstPlaceReviewCommand.getReviewId(),
-                firstPlaceReviewCommand.getUserId(),
-                Reason.FIRST_REVIEW,
-                ONE_POINT,
-                point);
-        Mockito.when(pointEventRepository.save(any(PointEvent.class))).thenReturn(pointEvent);
+        @Test
+        void Deleting_the_attached_text_review_deducts_two_point() {
+            point.pointUp();
+            point.pointUp();
+            PointEvent reviewDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, Reason.DELETE_REVIEW, ONE_POINT, point);
+            PointEvent photoDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, Reason.DELETE_PHOTO, ONE_POINT, point);
+            List<PointEvent> eventList = List.of(reviewDeletedEvent, photoDeletedEvent);
+            final int pointAmount = point.getAmount();
+            Mockito.when(pointEventRepository.saveAll(eventList)).thenReturn(eventList);
 
-        sut.saveReviewAddedEvent(point, firstPlaceReviewCommand, Reason.FIRST_REVIEW);
+            sut.saveReviewDeletedEvent(eventList);
 
-        Assertions.assertThat(point.getAmount()).isEqualTo(ONE_POINT);
+            Assertions.assertThat(point.getAmount()).isEqualTo(pointAmount - 2 * ONE_POINT);
+        }
     }
 }
