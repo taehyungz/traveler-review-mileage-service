@@ -21,4 +21,9 @@ public class ReviewReaderImpl implements ReviewReader {
         return reviewRepository.findById(reviewId)
                 .orElseThrow();
     }
+
+    @Override
+    public boolean isAlreadyWittenReviewInPlace(String userId, String placeId) {
+        return reviewRepository.existsByUserIdAndPlaceId(userId, placeId);
+    }
 }

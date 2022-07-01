@@ -7,8 +7,10 @@ import com.triple.mileage.domain.review.Review;
 import com.triple.mileage.domain.review.ReviewReader;
 import com.triple.mileage.domain.review.ReviewStore;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class PointServiceImpl implements PointService {
     private final ReviewReader reviewReader;
     private final ReviewStore reviewStore;
@@ -28,6 +31,8 @@ public class PointServiceImpl implements PointService {
     @Override
     @Transactional
     public void earnsPointFromReviewAdded(ReviewPointCommand command) {
+        log.info("EVNT:SUBS:PointServiceImpl.earnsPointFromReviewAdded command: ({})", command);
+        validateReviewAddedCommand(command);
         Point point = pointReader.findByUser(command.getUserId());
         point.versionUp();
 
@@ -48,6 +53,7 @@ public class PointServiceImpl implements PointService {
     @Override
     @Transactional
     public void deductPointFromReviewDeleted(ReviewPointCommand command) {
+        log.info("EVNT:SUBS:PointServiceImpl.deductPointFromReviewDeleted command: ({})", command);
         Point point = pointReader.findByUser(command.getUserId());
         point.versionUp();
 
@@ -62,6 +68,7 @@ public class PointServiceImpl implements PointService {
     @Override
     @Transactional
     public void modifyPointFromReviewModified(ReviewPointCommand command) {
+        log.info("EVNT:SUBS:PointServiceImpl.modifyPointFromReviewModified command: ({})", command);
         Point point = pointReader.findByUser(command.getUserId());
         point.versionUp();
 
@@ -73,6 +80,12 @@ public class PointServiceImpl implements PointService {
         if (!reviewToModify.getPhotoList().isEmpty() && command.getAttachedPhotoIds().isEmpty()) {
             pointEventStore.saveReviewDeletedEvent(List.of(PointEvent.of(point, command, Reason.DELETE_PHOTO)));
         }
+    }
+
+    private void validateReviewAddedCommand(ReviewPointCommand command) {
+        boolean isWrittenReviewOnSamePlace = reviewReader
+                .isAlreadyWittenReviewInPlace(command.getUserId(), command.getPlaceId());
+        Assert.state(!isWrittenReviewOnSamePlace, "회원이 이미 같은 장소에 리뷰를 작성했습니다");
     }
 
     private List<PointEvent> getReviewDeletedPointEventList(ReviewPointCommand command, Point point) {
