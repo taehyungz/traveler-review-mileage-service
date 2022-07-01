@@ -1,5 +1,6 @@
 package com.triple.mileage.domain.point;
 
+import com.triple.mileage.common.exception.IllegalStatusException;
 import com.triple.mileage.domain.photo.PhotoStore;
 import com.triple.mileage.domain.point.PointEvent.Reason;
 import com.triple.mileage.domain.point.dto.ReviewPointCommand;
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -85,7 +85,9 @@ public class PointServiceImpl implements PointService {
     private void validateReviewAddedCommand(ReviewPointCommand command) {
         boolean isWrittenReviewOnSamePlace = reviewReader
                 .isAlreadyWittenReviewInPlace(command.getUserId(), command.getPlaceId());
-        Assert.state(!isWrittenReviewOnSamePlace, "회원이 이미 같은 장소에 리뷰를 작성했습니다");
+        if (isWrittenReviewOnSamePlace) {
+            throw new IllegalStatusException("회원이 이미 같은 장소에 리뷰를 작성했습니다");
+        }
     }
 
     private List<PointEvent> getReviewDeletedPointEventList(ReviewPointCommand command, Point point) {

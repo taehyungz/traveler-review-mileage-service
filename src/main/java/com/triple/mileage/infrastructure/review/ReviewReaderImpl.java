@@ -1,5 +1,6 @@
 package com.triple.mileage.infrastructure.review;
 
+import com.triple.mileage.common.exception.EntityNotFoundException;
 import com.triple.mileage.domain.review.Review;
 import com.triple.mileage.domain.review.ReviewReader;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class ReviewReaderImpl implements ReviewReader {
     @Override
     public Review findReview(String reviewId) {
         return reviewRepository.findById(reviewId)
-                .orElseThrow();
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     @Override

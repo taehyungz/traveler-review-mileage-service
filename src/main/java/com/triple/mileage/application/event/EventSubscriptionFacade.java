@@ -1,6 +1,7 @@
 package com.triple.mileage.application.event;
 
 import com.triple.mileage.application.event.routing.EventTypeHandler;
+import com.triple.mileage.common.exception.InvalidParamException;
 import com.triple.mileage.interfaces.event.dto.EventRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,6 @@ public class EventSubscriptionFacade {
         return eventTypeHandlerList.stream()
                 .filter(eventTypeHandler -> eventTypeHandler.canSupport(eventRequest.getType()))
                 .findFirst()
-                .orElseThrow();
+                .orElseThrow(() -> new InvalidParamException("존재하지 않는 이벤트 타입입니다"));
     }
 }

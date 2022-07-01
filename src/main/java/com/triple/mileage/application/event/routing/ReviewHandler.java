@@ -1,5 +1,6 @@
 package com.triple.mileage.application.event.routing;
 
+import com.triple.mileage.common.exception.InvalidParamException;
 import com.triple.mileage.domain.point.PointService;
 import com.triple.mileage.domain.point.dto.ReviewPointCommand;
 import com.triple.mileage.interfaces.event.dto.EventRequest;
@@ -32,7 +33,7 @@ public class ReviewHandler implements EventTypeHandler {
                 pointService.deductPointFromReviewDeleted(command);
                 break;
             default:
-                throw new IllegalArgumentException("허용하지 않는 ActionType입니다");
+                throw new InvalidParamException("허용하지 않는 ActionType입니다");
         }
     }
 }
