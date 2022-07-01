@@ -1,5 +1,6 @@
 package com.triple.mileage.domain.point.dto;
 
+import com.triple.mileage.interfaces.event.dto.EventRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -17,4 +18,14 @@ public class ReviewPointCommand {
     private final List<String> attachedPhotoIds;
 
     private final String content;
+
+    public static ReviewPointCommand from(EventRequest eventRequest) {
+        return new ReviewPointCommand(
+                eventRequest.getReviewId(),
+                eventRequest.getUserId(),
+                eventRequest.getPlaceId(),
+                eventRequest.getAttachedPhotoIds(),
+                eventRequest.getContent()
+        );
+    }
 }
