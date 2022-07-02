@@ -33,8 +33,9 @@
 이벤트 발생을 구독하여 포인트 관련 서비스 기능을 제공합니다.  
 - 포인트 적립 API [POST /events]
 - 포인트 조회 API
+  - 전체 회원의 포인트 부여 히스토리 조회 [GET /api/v1/points] 
   - 개인의 누적 포인트 조회 [GET /api/v1/users/points]
-  - 개인의 누적 포인트와 포인트 변동 이력 조회[GET /api/v1/users/point-events]
+  - 개인의 누적 포인트와 포인트 부여 히스토리 조회[GET /api/v1/users/point-events]
 
 ### 스키마
 [최종 스키마 sql](https://github.com/taehyungz/traveler-review-mileage-service/blob/main/schema.sql)
