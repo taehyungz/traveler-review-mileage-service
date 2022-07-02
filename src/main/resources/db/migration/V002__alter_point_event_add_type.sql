@@ -1,0 +1,1 @@
+ALTER TABLE point_event ADD COLUMN action_type VARCHAR(32) NOT NULL AFTER user_id;
