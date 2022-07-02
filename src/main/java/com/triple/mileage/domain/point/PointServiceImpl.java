@@ -7,6 +7,7 @@ import com.triple.mileage.domain.point.PointEvent.Reason;
 import com.triple.mileage.domain.point.dto.PointEventInfo;
 import com.triple.mileage.domain.point.dto.PointInfo;
 import com.triple.mileage.domain.point.dto.ReviewPointCommand;
+import com.triple.mileage.domain.point.dto.TotalPointEventInfo;
 import com.triple.mileage.domain.review.Review;
 import com.triple.mileage.domain.review.ReviewReader;
 import com.triple.mileage.domain.review.ReviewStore;
@@ -102,6 +103,11 @@ public class PointServiceImpl implements PointService {
         Point userPoint = pointReader.findByUser(userId);
         List<PointEventInfo> pointEventInfoList = pointEventReader.findAllEventsByUserId(userId);
         return new PointInfo(userPoint.getAmount(), pointEventInfoList);
+    }
+
+    @Override
+    public List<TotalPointEventInfo> getAllUserPointsWithEvents() {
+        return pointEventReader.findAllEvents();
     }
 
     private void validateReviewAddedCommand(ReviewPointCommand command) {

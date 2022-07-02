@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class PointEventInfo {
+public class TotalPointEventInfo {
     private final String reviewId;
+
+    private final String userId;
 
     private final PointEvent.ActionType actionType;
 
