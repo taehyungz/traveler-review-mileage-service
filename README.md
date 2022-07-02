@@ -11,7 +11,7 @@
 ### 프로젝트로 이동
 > cd ./traveler-review-mileage-service
   
-### 도커 콤포즈 실행
+### 도커 컴포즈 실행
 > cd ./docker-compose
   
 > docker-compose -p mileage up -d
@@ -31,11 +31,11 @@
 ## 프로젝트 설명
 ### 기능
 이벤트 발생을 구독하여 포인트 관련 서비스 기능을 제공합니다.  
-- 포인트 적립 API [POST /events]
+- 포인트 적립 API [POST /events](https://github.com/taehyungz/traveler-review-mileage-service/blob/main/api_spec/events.MD)
 - 포인트 조회 API
-  - 전체 회원의 포인트 부여 히스토리 조회 [GET /api/v1/points] 
-  - 개인의 누적 포인트 조회 [GET /api/v1/users/points]
-  - 개인의 누적 포인트와 포인트 부여 히스토리 조회[GET /api/v1/users/point-events]
+  - 전체 회원의 포인트 부여 히스토리 조회 [GET /api/v1/points](https://github.com/taehyungz/traveler-review-mileage-service/blob/main/api_spec/users_points.MD)
+  - 개인의 누적 포인트 조회 [GET /api/v1/users/points](https://github.com/taehyungz/traveler-review-mileage-service/blob/main/api_spec/points.MD)
+  - 개인의 누적 포인트와 포인트 부여 히스토리 조회 [GET /api/v1/users/point-events](https://github.com/taehyungz/traveler-review-mileage-service/blob/main/api_spec/users_point_events.MD)
 
 ### 스키마
 [최종 스키마 sql](https://github.com/taehyungz/traveler-review-mileage-service/blob/main/schema.sql)
