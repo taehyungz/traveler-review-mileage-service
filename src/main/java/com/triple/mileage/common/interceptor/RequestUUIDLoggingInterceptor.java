@@ -13,12 +13,17 @@ import java.util.UUID;
 @Component
 public class RequestUUIDLoggingInterceptor implements HandlerInterceptor {
 
-    public static final String REQUEST_ID = "request_id";
+    public static final String TRACE_ID = "trace_id";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        MDC.put(REQUEST_ID, createTraceId());
+        MDC.put(TRACE_ID, createTraceId());
         return HandlerInterceptor.super.preHandle(request, response, handler);
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        MDC.clear();
     }
 
     private String createTraceId() {

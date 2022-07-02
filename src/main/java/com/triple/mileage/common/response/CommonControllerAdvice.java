@@ -25,8 +25,8 @@ public class CommonControllerAdvice {
     @ResponseStatus(HttpStatus.OK)
     @ExceptionHandler(value = BaseException.class)
     public CommonResponse onBaseException(BaseException e) {
-        String requestId = MDC.get(RequestUUIDLoggingInterceptor.REQUEST_ID);
-        log.warn("[BaseException] requestId = {}, cause = {}, errorMsg = {}",
+        String requestId = MDC.get(RequestUUIDLoggingInterceptor.TRACE_ID);
+        log.warn("requestId = ({}), [BaseException] cause = ({}), errorMsg = ({})",
                 requestId,
                 NestedExceptionUtils.getMostSpecificCause(e),
                 NestedExceptionUtils.getMostSpecificCause(e).getMessage());
@@ -38,8 +38,8 @@ public class CommonControllerAdvice {
     @ResponseStatus(HttpStatus.OK)
     @ExceptionHandler(value = ConstraintViolationException.class)
     public CommonResponse constraintViolationException(ConstraintViolationException e) {
-        String requestId = MDC.get(RequestUUIDLoggingInterceptor.REQUEST_ID);
-        log.warn("[constraintViolationException] requestId = {}, cause = {}, errorMsg = {}",
+        String requestId = MDC.get(RequestUUIDLoggingInterceptor.TRACE_ID);
+        log.warn("requestId = ({}), [ConstraintViolationException] cause = ({}), errorMsg = ({})",
                 requestId,
                 NestedExceptionUtils.getMostSpecificCause(e),
                 NestedExceptionUtils.getMostSpecificCause(e).getMessage());
@@ -51,8 +51,8 @@ public class CommonControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public CommonResponse requestParamNotValidException(MethodArgumentNotValidException e) {
-        String requestId = MDC.get(RequestUUIDLoggingInterceptor.REQUEST_ID);
-        log.warn("[requestParamNotValidException] requestId = {}, errorMsg = {}",
+        String requestId = MDC.get(RequestUUIDLoggingInterceptor.TRACE_ID);
+        log.warn("requestId = ({}), [RequestParamNotValidException] errorMsg = ({})",
                 requestId, NestedExceptionUtils.getMostSpecificCause(e).getMessage());
         BindingResult bindingResult = e.getBindingResult();
         FieldError fe = bindingResult.getFieldError();
@@ -69,8 +69,8 @@ public class CommonControllerAdvice {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(value = Exception.class)
     public CommonResponse onException(Exception e) {
-        String requestId = MDC.get(RequestUUIDLoggingInterceptor.REQUEST_ID);
-        log.error("requestId = {} ", requestId, e);
+        String requestId = MDC.get(RequestUUIDLoggingInterceptor.TRACE_ID);
+        log.error("requestId = ({}) ", requestId, e);
         return CommonResponse.fail(ErrorCode.SYSTEM_ERROR);
     }
 }

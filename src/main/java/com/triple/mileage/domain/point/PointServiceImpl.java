@@ -1,6 +1,7 @@
 package com.triple.mileage.domain.point;
 
 import com.triple.mileage.common.exception.IllegalStatusException;
+import com.triple.mileage.common.interceptor.RequestUUIDLoggingInterceptor;
 import com.triple.mileage.domain.photo.PhotoStore;
 import com.triple.mileage.domain.point.PointEvent.Reason;
 import com.triple.mileage.domain.point.dto.ReviewPointCommand;
@@ -9,6 +10,7 @@ import com.triple.mileage.domain.review.ReviewReader;
 import com.triple.mileage.domain.review.ReviewStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -31,7 +33,9 @@ public class PointServiceImpl implements PointService {
     @Override
     @Transactional
     public void earnsPointFromReviewAdded(ReviewPointCommand command) {
-        log.info("EVNT:SUBS:PointServiceImpl.earnsPointFromReviewAdded command: ({})", command);
+        final String requestId = MDC.get(RequestUUIDLoggingInterceptor.TRACE_ID);
+        log.info("requestId = ({}), EVNT:SUBS:PointServiceImpl.earnsPointFromReviewAdded command = ({})",
+                requestId, command);
         validateReviewAddedCommand(command);
         Point point = pointReader.findByUser(command.getUserId());
         point.versionUp();
@@ -53,7 +57,9 @@ public class PointServiceImpl implements PointService {
     @Override
     @Transactional
     public void deductPointFromReviewDeleted(ReviewPointCommand command) {
-        log.info("EVNT:SUBS:PointServiceImpl.deductPointFromReviewDeleted command: ({})", command);
+        final String requestId = MDC.get(RequestUUIDLoggingInterceptor.TRACE_ID);
+        log.info("requestId = ({}), EVNT:SUBS:PointServiceImpl.deductPointFromReviewDeleted command = ({})",
+                requestId, command);
         Point point = pointReader.findByUser(command.getUserId());
         point.versionUp();
 
@@ -68,7 +74,9 @@ public class PointServiceImpl implements PointService {
     @Override
     @Transactional
     public void modifyPointFromReviewModified(ReviewPointCommand command) {
-        log.info("EVNT:SUBS:PointServiceImpl.modifyPointFromReviewModified command: ({})", command);
+        final String requestId = MDC.get(RequestUUIDLoggingInterceptor.TRACE_ID);
+        log.info("requestId = ({}), EVNT:SUBS:PointServiceImpl.modifyPointFromReviewModified command = ({})",
+                requestId, command);
         Point point = pointReader.findByUser(command.getUserId());
         point.versionUp();
 
