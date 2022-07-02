@@ -33,7 +33,7 @@ public class ReviewHandler implements EventTypeHandler {
                 pointService.deductPointFromReviewDeleted(command);
                 break;
             default:
-                throw new InvalidParamException("허용하지 않는 ActionType입니다");
+                throw new InvalidParamException();
         }
     }
 }

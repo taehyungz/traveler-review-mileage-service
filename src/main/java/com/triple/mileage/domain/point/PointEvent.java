@@ -1,5 +1,6 @@
 package com.triple.mileage.domain.point;
 
+import com.triple.mileage.common.exception.IllegalStatusException;
 import com.triple.mileage.domain.BasicEntity;
 import com.triple.mileage.domain.point.dto.ReviewPointCommand;
 import lombok.AccessLevel;
@@ -99,7 +100,7 @@ public class PointEvent extends BasicEntity {
                 case FIRST_REVIEW:
                     return DELETE_FIRST_REVIEW;
                 default:
-                    throw new IllegalStateException("비정상적인 상황입니다.");
+                    throw new IllegalStatusException("비정상적인 상황입니다.");
             }
         }
     }

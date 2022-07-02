@@ -23,6 +23,6 @@ public class EventSubscriptionFacade {
         return eventTypeHandlerList.stream()
                 .filter(eventTypeHandler -> eventTypeHandler.canSupport(eventRequest.getType()))
                 .findFirst()
-                .orElseThrow(() -> new InvalidParamException("존재하지 않는 이벤트 타입입니다"));
+                .orElseThrow(InvalidParamException::new);
     }
 }

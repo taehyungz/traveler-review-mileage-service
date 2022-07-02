@@ -1,19 +1,23 @@
 package com.triple.mileage.domain.point.dto;
 
+import com.triple.mileage.common.validation.ConstraintViolationValidateUtil;
 import com.triple.mileage.interfaces.event.dto.EventRequest;
 import lombok.Getter;
 import lombok.ToString;
-import org.springframework.util.Assert;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Getter
 @ToString
 public class ReviewPointCommand {
+    @NotEmpty
     private final String reviewId;
 
+    @NotEmpty
     private final String userId;
 
+    @NotEmpty
     private final String placeId;
 
     private final List<String> attachedPhotoIds;
@@ -36,13 +40,11 @@ public class ReviewPointCommand {
             String placeId,
             List<String> attachedPhotoIds,
             String content) {
-        Assert.hasText(reviewId, "리뷰 아이디가 빈 문자열입니다");
-        Assert.hasText(userId, "유저 아이디가 빈 문자열입니다");
-        Assert.hasText(placeId, "장소 아이디가 빈 문자열입니다");
         this.reviewId = reviewId;
         this.userId = userId;
         this.placeId = placeId;
         this.attachedPhotoIds = attachedPhotoIds;
         this.content = content;
+        ConstraintViolationValidateUtil.validate(this);
     }
 }

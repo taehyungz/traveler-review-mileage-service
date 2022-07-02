@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.validation.ConstraintViolationException;
+
 @Slf4j
 @ControllerAdvice
 public class CommonControllerAdvice {
@@ -21,7 +23,7 @@ public class CommonControllerAdvice {
     // 200, base exception
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    @ExceptionHandler(value = {BaseException.class})
+    @ExceptionHandler(value = BaseException.class)
     public CommonResponse onBaseException(BaseException e) {
         String requestId = MDC.get(RequestUUIDLoggingInterceptor.REQUEST_ID);
         log.warn("[BaseException] requestId = {}, cause = {}, errorMsg = {}",
@@ -31,14 +33,27 @@ public class CommonControllerAdvice {
         return CommonResponse.fail(e.getMessage(), e.getErrorCode().name());
     }
 
+    // 200, constraint exception
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    @ExceptionHandler(value = ConstraintViolationException.class)
+    public CommonResponse constraintViolationException(ConstraintViolationException e) {
+        String requestId = MDC.get(RequestUUIDLoggingInterceptor.REQUEST_ID);
+        log.warn("[constraintViolationException] requestId = {}, cause = {}, errorMsg = {}",
+                requestId,
+                NestedExceptionUtils.getMostSpecificCause(e),
+                NestedExceptionUtils.getMostSpecificCause(e).getMessage());
+        return CommonResponse.fail(ErrorCode.ILLEGAL_STATUS.getErrorMsg(), ErrorCode.ILLEGAL_STATUS.name());
+    }
+
     // 400, invalid parameter error
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public CommonResponse requestParamNotValidException(MethodArgumentNotValidException e) {
-        String eventId = MDC.get(RequestUUIDLoggingInterceptor.REQUEST_ID);
+        String requestId = MDC.get(RequestUUIDLoggingInterceptor.REQUEST_ID);
         log.warn("[requestParamNotValidException] requestId = {}, errorMsg = {}",
-                eventId, NestedExceptionUtils.getMostSpecificCause(e).getMessage());
+                requestId, NestedExceptionUtils.getMostSpecificCause(e).getMessage());
         BindingResult bindingResult = e.getBindingResult();
         FieldError fe = bindingResult.getFieldError();
         if (fe != null) {

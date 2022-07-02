@@ -7,8 +7,4 @@ public class InvalidParamException extends BaseException {
     public InvalidParamException() {
         super(ErrorCode.INVALID_PARAMETER);
     }
-
-    public InvalidParamException(String errorMsg) {
-        super(errorMsg, ErrorCode.INVALID_PARAMETER);
-    }
 }
