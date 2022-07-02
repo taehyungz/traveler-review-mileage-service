@@ -239,7 +239,7 @@ class PointServiceImplTest {
             sut.modifyPointFromReviewModified(nonPhotoReviewCommand);
 
             Mockito.verify(pointEventStore, times(1))
-                    .saveReviewDeletedEvent(ArgumentMatchers.<PointEvent>anyList());
+                    .saveReviewModifiedEvent(point, nonPhotoReviewCommand, Reason.DELETE_PHOTO);
         }
 
         @Test
@@ -257,7 +257,7 @@ class PointServiceImplTest {
             sut.modifyPointFromReviewModified(photoAddedCommand);
 
             Mockito.verify(pointEventStore, times(1))
-                    .saveReviewAddedEvent(point, photoAddedCommand, Reason.ATTACH_PHOTO);
+                    .saveReviewModifiedEvent(point, photoAddedCommand, Reason.ATTACH_PHOTO);
         }
     }
 }

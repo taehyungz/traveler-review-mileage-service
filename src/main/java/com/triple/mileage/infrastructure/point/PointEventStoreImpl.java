@@ -24,6 +24,7 @@ public class PointEventStoreImpl implements PointEventStore {
         PointEvent initPointEvent = new PointEvent(
                 command.getReviewId(),
                 command.getUserId(),
+                ActionType.ADD,
                 reason,
                 ONE_POINT,
                 point);
@@ -35,5 +36,22 @@ public class PointEventStoreImpl implements PointEventStore {
     public void saveReviewDeletedEvent(List<PointEvent> reviewDeletedPointEvent) {
         List<PointEvent> pointEvents = pointEventRepository.saveAll(reviewDeletedPointEvent);
         pointEvents.get(0).getPoint().pointDownAmountOf(reviewDeletedPointEvent.size());
+    }
+
+    @Override
+    public void saveReviewModifiedEvent(Point point, ReviewPointCommand command, Reason reason) {
+        PointEvent initPointEvent = new PointEvent(
+                command.getReviewId(),
+                command.getUserId(),
+                ActionType.MOD,
+                reason,
+                ONE_POINT,
+                point);
+        PointEvent pointEvent = pointEventRepository.save(initPointEvent);
+        if (Reason.ATTACH_PHOTO == reason) {
+            pointEvent.getPoint().pointUp();
+        } else {
+            pointEvent.getPoint().pointDownAmountOf(ONE_POINT);
+        }
     }
 }

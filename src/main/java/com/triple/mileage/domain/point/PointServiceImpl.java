@@ -4,6 +4,8 @@ import com.triple.mileage.common.exception.IllegalStatusException;
 import com.triple.mileage.common.interceptor.RequestUUIDLoggingInterceptor;
 import com.triple.mileage.domain.photo.PhotoStore;
 import com.triple.mileage.domain.point.PointEvent.Reason;
+import com.triple.mileage.domain.point.dto.PointEventInfo;
+import com.triple.mileage.domain.point.dto.PointInfo;
 import com.triple.mileage.domain.point.dto.ReviewPointCommand;
 import com.triple.mileage.domain.review.Review;
 import com.triple.mileage.domain.review.ReviewReader;
@@ -20,7 +22,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Slf4j
 public class PointServiceImpl implements PointService {
     private final ReviewReader reviewReader;
@@ -83,11 +84,24 @@ public class PointServiceImpl implements PointService {
         Review reviewToModify = reviewReader.findReview(command.getReviewId());
 
         if (reviewToModify.getPhotoList().isEmpty() && !command.getAttachedPhotoIds().isEmpty()) {
-            pointEventStore.saveReviewAddedEvent(point, command, Reason.ATTACH_PHOTO);
+            pointEventStore.saveReviewModifiedEvent(point, command, Reason.ATTACH_PHOTO);
         }
         if (!reviewToModify.getPhotoList().isEmpty() && command.getAttachedPhotoIds().isEmpty()) {
-            pointEventStore.saveReviewDeletedEvent(List.of(PointEvent.of(point, command, Reason.DELETE_PHOTO)));
+            pointEventStore.saveReviewModifiedEvent(point, command, Reason.DELETE_PHOTO);
         }
+    }
+
+    @Override
+    public int getUserPoint(String userId) {
+        return pointReader.findByUser(userId)
+                .getAmount();
+    }
+
+    @Override
+    public PointInfo getUserPointWithEvents(String userId) {
+        Point userPoint = pointReader.findByUser(userId);
+        List<PointEventInfo> pointEventInfoList = pointEventReader.findAllEventsByUserId(userId);
+        return new PointInfo(userPoint.getAmount(), pointEventInfoList);
     }
 
     private void validateReviewAddedCommand(ReviewPointCommand command) {
@@ -101,7 +115,7 @@ public class PointServiceImpl implements PointService {
     private List<PointEvent> getReviewDeletedPointEventList(ReviewPointCommand command, Point point) {
         return pointEventReader.findAllEventsByReviewId(command.getReviewId())
                 .stream()
-                .map(pointEvent -> PointEvent.deductPointEventFrom(point, pointEvent))
+                .map(pointEvent -> PointEvent.deductPointEventFrom(point, pointEvent, PointEvent.ActionType.DELETE))
                 .collect(Collectors.toList());
     }
 

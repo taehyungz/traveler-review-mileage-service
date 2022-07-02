@@ -54,6 +54,7 @@ class PointEventStoreImplTest {
             PointEvent pointEvent = new PointEvent(
                     plainTextReviewCommand.getReviewId(),
                     plainTextReviewCommand.getUserId(),
+                    ActionType.ADD,
                     Reason.WRITE_TEXT,
                     ONE_POINT,
                     point);
@@ -71,6 +72,7 @@ class PointEventStoreImplTest {
             PointEvent pointEvent = new PointEvent(
                     photoAddedReviewCommand.getReviewId(),
                     photoAddedReviewCommand.getUserId(),
+                    ActionType.ADD,
                     Reason.ATTACH_PHOTO,
                     ONE_POINT,
                     point);
@@ -88,6 +90,7 @@ class PointEventStoreImplTest {
             PointEvent pointEvent = new PointEvent(
                     firstPlaceReviewCommand.getReviewId(),
                     firstPlaceReviewCommand.getUserId(),
+                    ActionType.ADD,
                     Reason.FIRST_REVIEW,
                     ONE_POINT,
                     point);
@@ -105,7 +108,7 @@ class PointEventStoreImplTest {
         @Test
         void Deleting_the_plain_text_review_deducts_one_point() {
             point.pointUp();
-            PointEvent reviewDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, Reason.DELETE_TEXT, ONE_POINT, point);
+            PointEvent reviewDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, ActionType.DELETE, Reason.DELETE_TEXT, ONE_POINT, point);
             List<PointEvent> eventList = List.of(reviewDeletedEvent);
             final int pointAmount = point.getAmount();
             Mockito.when(pointEventRepository.saveAll(eventList)).thenReturn(eventList);
@@ -119,8 +122,8 @@ class PointEventStoreImplTest {
         void Deleting_the_attached_text_review_deducts_two_point() {
             point.pointUp();
             point.pointUp();
-            PointEvent reviewDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, Reason.DELETE_TEXT, ONE_POINT, point);
-            PointEvent photoDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, Reason.DELETE_PHOTO, ONE_POINT, point);
+            PointEvent reviewDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, ActionType.DELETE, Reason.DELETE_TEXT, ONE_POINT, point);
+            PointEvent photoDeletedEvent = new PointEvent(REVIEW_ID, USER_ID, ActionType.DELETE, Reason.DELETE_PHOTO, ONE_POINT, point);
             List<PointEvent> eventList = List.of(reviewDeletedEvent, photoDeletedEvent);
             final int pointAmount = point.getAmount();
             Mockito.when(pointEventRepository.saveAll(eventList)).thenReturn(eventList);

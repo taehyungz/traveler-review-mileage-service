@@ -33,6 +33,10 @@ public class PointEvent extends BasicEntity {
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
+    private ActionType actionType;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
     private Reason reason;
 
     @Column(nullable = false)
@@ -48,31 +52,35 @@ public class PointEvent extends BasicEntity {
     public PointEvent(
             String reviewId,
             String userId,
+            ActionType actionType,
             Reason reason,
             int amount,
             Point point) {
         this.reviewId = reviewId;
         this.userId = userId;
+        this.actionType = actionType;
         this.reason = reason;
         this.amount = amount;
         this.version = point.getVersion();
         this.point = point;
     }
 
-    public static PointEvent deductPointEventFrom(Point point, PointEvent pointEvent) {
+    public static PointEvent deductPointEventFrom(Point point, PointEvent pointEvent, ActionType actionType) {
         return new PointEvent(
                 pointEvent.getReviewId(),
                 pointEvent.getUserId(),
+                actionType,
                 pointEvent.getReason().getOppositeReason(),
                 pointEvent.getAmount() * -1,
                 point
         );
     }
 
-    public static PointEvent of(Point point, ReviewPointCommand command, Reason reason) {
+    public static PointEvent of(Point point, ReviewPointCommand command, Reason reason, ActionType actionType) {
         return new PointEvent(
                 command.getReviewId(),
                 command.getUserId(),
+                actionType,
                 reason,
                 1,
                 point
@@ -103,5 +111,15 @@ public class PointEvent extends BasicEntity {
                     throw new IllegalStatusException("비정상적인 상황입니다.");
             }
         }
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public enum ActionType {
+        ADD("추가"),
+        MOD("수정"),
+        DELETE("삭제");
+
+        private final String description;
     }
 }

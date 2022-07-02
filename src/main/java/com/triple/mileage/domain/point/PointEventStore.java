@@ -10,4 +10,6 @@ public interface PointEventStore {
     void saveReviewAddedEvent(Point point, ReviewPointCommand command, Reason reason);
 
     void saveReviewDeletedEvent(List<PointEvent> pointEventList);
+
+    void saveReviewModifiedEvent(Point point, ReviewPointCommand command, Reason reason);
 }
